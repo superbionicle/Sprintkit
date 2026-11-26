@@ -38,3 +38,15 @@ Temporary Items
 
 # .env file
 .env
+
+# Python files
+.venv/
+__pycache__/
+*.egg-info/
+dist/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.nox/

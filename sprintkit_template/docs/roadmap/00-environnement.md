@@ -56,10 +56,10 @@ Installer uv et deux versions de Python, créer le dépôt `sprintkit`, initiali
 
 ## Résultat attendu
 
-- [ ] `uv run python --version` donne 3.14.x, et `uv run --python 3.13 python --version` et `uv run --python 3.15 python --version` donnent les versions correspondantes.
-- [ ] `.venv/` existe et est ignoré par Git.
-- [ ] L'appel `curl` à `/myself` répond 200 avec ton compte.
-- [ ] Tu sais expliquer la différence entre `pyproject.toml` (contraintes) et `uv.lock` (versions exactes).
+- [x] `uv run python --version` donne 3.14.x, et `uv run --python 3.13 python --version` et `uv run --python 3.15 python --version` donnent les versions correspondantes.
+- [x] `.venv/` existe et est ignoré par Git.
+- [x] L'appel `curl` à `/myself` répond 200 avec ton compte.
+- [x] Tu sais expliquer la différence entre `pyproject.toml` (contraintes) et `uv.lock` (versions exactes).
 
 ## Phase DevOps
 
@@ -68,15 +68,17 @@ Installer uv et deux versions de Python, créer le dépôt `sprintkit`, initiali
 1. Protection de `main` (PR obligatoire, historique linéaire), template de PR, Conventional Commits : même configuration que pour skylink.
 2. **Jenkins :**
    - job Multibranch `sprintkit` ;
-   - stratégie d'exécution : un conteneur Docker basé sur une image officielle (`ghcr.io/astral-sh/uv:python3.14-bookworm-slim`, ou `python:3.14-slim` avec uv installé), plutôt qu'un Python installé sur l'agent ;
-   - variable `UV_CACHE_DIR` pointée vers un volume persistant de l'agent, pour ne pas tout retélécharger.
+   - prérequis : la VM agent est prête (Docker installé, `jenkins` dans le groupe `docker`, 0 executor sur le controller). Voir « Infrastructure Jenkins : VM sur Proxmox » dans le README global ;
+   - stratégie d'exécution : un conteneur Docker basé sur une image officielle (`ghcr.io/astral-sh/uv:python3.14-bookworm-slim`, ou `python:3.14-slim` avec uv installé), plutôt qu'un Python installé sur la VM. La VM ne porte que Docker, Java et Git : tout l'outillage Python vit dans l'image ;
+   - cache uv : le dossier `/var/cache/ci/uv` de la VM, monté dans le conteneur (`args '-v /var/cache/ci/uv:/cache/uv'`), avec `UV_CACHE_DIR=/cache/uv`. Vérifie au second build que les paquets ne sont plus retéléchargés ;
+   - snapshot Proxmox de la VM agent une fois qu'elle est fonctionnelle : c'est ton point de retour si tu casses quelque chose en avançant.
 3. **GitHub Actions :** prends connaissance de `astral-sh/setup-uv` (cache intégré), que tu utiliseras à l'étape 01.
 4. **Credentials Jenkins :** crée un credential « Username with password » `jira-cloud` (email + token). Il ne servira qu'à l'étape 08, mais pose dès maintenant la bonne pratique.
 
 Critères :
 
-- [ ] Un push direct sur `main` est refusé.
-- [ ] Un job Jenkins de test (même un `sh 'uv --version'` dans le conteneur) passe.
+- [x] Un push direct sur `main` est refusé.
+- [x] Un job Jenkins de test (même un `sh 'uv --version'` dans le conteneur) passe, et s'exécute sur la VM agent, pas sur le controller (vérifie le nœud indiqué dans la console).
 
 ## Pièges fréquents
 
