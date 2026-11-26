@@ -50,7 +50,3 @@ htmlcov/
 .ruff_cache/
 .pytest_cache/
 .nox/
-.python-version
-pyproject.toml
-uv.lock
-src/
