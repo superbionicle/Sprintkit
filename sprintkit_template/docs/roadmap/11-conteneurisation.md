@@ -79,7 +79,7 @@ Docker met en cache chaque instruction. On copie d'abord les fichiers de dépend
 1. **PR :** hadolint dans Quality ; build de l'image sans push (buildx, cache `type=gha`) ; smoke test ; scan Trivy (`--exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed`).
 2. **Merge sur `main` :** push multi-arch (`linux/amd64,linux/arm64`) sur GHCR, avec les tags `sha-<court>` et `main`.
 3. **Jenkins :**
-   - stage `Image` avec `docker buildx` (builder créé une fois sur l'agent) ;
+   - stage `Image` avec `docker buildx`, sur le builder `ci` créé une fois sur la VM agent. L'amd64 se build nativement ; l'arm64 passe par l'émulation QEMU (voir le README global), qui est plus lente. Ne fais donc le multi-arch que sur `main` et les tags, et seulement l'amd64 sur les PR ;
    - push sur GHCR avec un credential token, via `withCredentials` + `docker login --password-stdin` ;
    - `docker logout` dans `post { always }`.
 4. **Signature (optionnel, valorisant) :** `cosign sign` en mode keyless (OIDC GitHub) sur l'image publiée, et vérification documentée (`cosign verify`). C'est la provenance de l'artefact, un sujet supply chain.

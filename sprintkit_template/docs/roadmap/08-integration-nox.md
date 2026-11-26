@@ -104,7 +104,21 @@ Créer le faux Jira (FastAPI), les tests d'intégration du client et de la CLI c
 2. **Jenkins :**
    - stages `parallel` pour 3.13, 3.14 et 3.15 (bloc `matrix` déclaratif, axe `PYTHON`) ;
    - même logique « autorisé à échouer » pour 3.15 si besoin : `catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE')` sur cette case uniquement ;
-   - stage `Integration` : `docker.image('fakejira:...').withRun('-p 0:8000') { c -> ... }`, ou `docker compose up -d` avec `--wait`, puis `nox -s integration`, puis arrêt garanti dans `post { always { } }` ;
+   - stage `Integration` : attention au réseau. Les tests tournent eux-mêmes **dans un conteneur**, donc `localhost` y désigne ce conteneur, pas le fake. Crée un réseau Docker dédié au build, démarre `fakejira` dessus et lance le conteneur de tests sur le même réseau :
+     ```groovy
+     def net = "ci-${env.BUILD_TAG}".replaceAll('[^A-Za-z0-9_.-]', '-')
+     sh "docker network create ${net}"
+     try {
+         docker.image("fakejira:${env.GIT_COMMIT}").withRun("--network ${net} --network-alias fakejira") { c ->
+             docker.image(env.CI_IMAGE).inside("--network ${net} -e FAKEJIRA_URL=http://fakejira:8000") {
+                 sh 'nox -s integration'
+             }
+         }
+     } finally {
+         sh "docker network rm ${net} || true"
+     }
+     ```
+     Le nom de réseau est unique par build, ce qui évite les collisions si deux builds tournent en même temps sur la VM. Alternative : `docker compose -p <nom-unique> up -d --wait` avec le service de tests dans le même fichier compose ;
    - job hebdomadaire `contract`, avec `withCredentials` et `cron('H 6 * * 1')`.
 3. **Jenkinsfile mince :** chaque stage n'appelle plus qu'une session nox. Si tu dois écrire de la logique dans le Jenkinsfile, elle a sa place dans le `noxfile`.
 4. **Pipeline complète à ce stade :**
