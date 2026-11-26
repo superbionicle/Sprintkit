@@ -6,6 +6,11 @@ pipeline{
             args "-v /var/cache/ci/uv:/cache/uv"
         }
     }
+    
+    environment{
+        UV_CACHE_DIR = '/cache/uv'
+    }
+
     stages{
         stage("Initialisation"){
             steps {
