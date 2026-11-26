@@ -1,5 +1,5 @@
 pipeline{
-    agent{
+    agent "linux" {
         docker{
             image "ghcr.io/astral-sh/uv:python3.14-bookworm-slim"
             args "-v /var/cache/ci/uv:/cache/uv"
