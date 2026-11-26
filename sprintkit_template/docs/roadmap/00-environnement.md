@@ -78,7 +78,7 @@ Installer uv et deux versions de Python, créer le dépôt `sprintkit`, initiali
 Critères :
 
 - [x] Un push direct sur `main` est refusé.
-- [ ] Un job Jenkins de test (même un `sh 'uv --version'` dans le conteneur) passe, et s'exécute sur la VM agent, pas sur le controller (vérifie le nœud indiqué dans la console).
+- [x] Un job Jenkins de test (même un `sh 'uv --version'` dans le conteneur) passe, et s'exécute sur la VM agent, pas sur le controller (vérifie le nœud indiqué dans la console).
 
 ## Pièges fréquents
 
