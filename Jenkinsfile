@@ -21,7 +21,6 @@ pipeline{
                 sh 'cat .python-version; python3 --version; uv python find'
                 sh "uv --version"
                 sh "uv cache dir"
-                sh "uv sync --locked -v"
             }
         }
     }
