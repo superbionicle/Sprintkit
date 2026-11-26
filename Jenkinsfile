@@ -11,6 +11,8 @@ pipeline{
             steps {
                 echo "Blop"
                 sh "uv --version"
+                sh "uv cache dir"
+                sh "uv sync --locked -v"
             }
         }
     }
